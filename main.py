@@ -1,12 +1,22 @@
 import string
 import random
+import json
+import os.path
+
 
 def main():
     print("Hi, Marta. Welcome to GenPas!")
     application_name = input("Give application name: ")
-    set_password(application_name)
+    filename = "./password_generator/saved_passwords.json"
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
+            saved_passwords = json.load(f)
+    else:
+        saved_passwords = {}
+    set_password(application_name, saved_passwords, filename)
 
-def set_password(application_name):
+
+def set_password(application_name, saved_passwords, filename):
     letters_uppercase = list(string.ascii_uppercase)
     letters_lowercase = list(string.ascii_lowercase)
     digits = list(string.digits)
@@ -37,6 +47,7 @@ def set_password(application_name):
 
             random.shuffle(password)
             password = ''.join(password)
+            saved_passwords[application_name] = password
             print(f"Your password: {password}\n")
             new_password = input("Do you need a new password? Y/N:")
 
@@ -45,8 +56,8 @@ def set_password(application_name):
         else:
             new_password = input("Do you need a new password? Y/N:")
 
-        with open("no_password_at_all.txt", "w") as passwords_file:
-            passwords_file.write(f"{application_name}: {password}")
+        with open(filename, "w") as f:
+            json.dump(saved_passwords, f)
 
 
 if __name__ == '__main__':
