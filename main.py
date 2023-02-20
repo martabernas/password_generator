@@ -1,17 +1,20 @@
 import string
 import random
 
+def main():
+    print("Hi, Marta. Welcome to GenPas!")
+    application_name = input("Give application name: ")
+    set_password(application_name)
 
-def print_hi(name):
-    letters_lowercase = list(string.ascii_lowercase)
+def set_password(application_name):
     letters_uppercase = list(string.ascii_uppercase)
+    letters_lowercase = list(string.ascii_lowercase)
     digits = list(string.digits)
     special_characters = list(string.punctuation)
     new_password = 'Y'
     proper_nums = str(list(range(0, 11)))
     default_num = "3"
 
-    print("Hi, Marta. Welcome to GenPas!")
     while True:
         if new_password == 'Y' or new_password == 'y':
             password = []
@@ -33,7 +36,8 @@ def print_hi(name):
             password.extend(random.choices(special_characters, k=int(num_of_special_characters)))
 
             random.shuffle(password)
-            print(f"Your password: {''.join(password)}")
+            password = ''.join(password)
+            print(f"Your password: {password}\n")
             new_password = input("Do you need a new password? Y/N:")
 
         elif new_password == 'N' or new_password == 'n':
@@ -41,6 +45,9 @@ def print_hi(name):
         else:
             new_password = input("Do you need a new password? Y/N:")
 
+        with open("no_password_at_all.txt", "w") as passwords_file:
+            passwords_file.write(f"{application_name}: {password}")
+
 
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    main()
