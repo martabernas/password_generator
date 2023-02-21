@@ -5,43 +5,50 @@ import os.path
 
 
 def main():
-    new_password = "y"
+    answer = "y"
     print("Hi, Marta. Welcome to GenPas!")
-    accepted_answers = ["y", "Y", "N", "n"]
-    overwrite = 'y'
 
-    while new_password == "y" or new_password == "Y":
-        filename = "./password_generator/saved_passwords.json"
-        if os.path.exists(filename):
-            with open(filename, "r") as f:
-                saved_passwords = json.load(f)
-        else:
-            saved_passwords = {}
+    while True:
+        answer = input("Do you need a new password? Y/N: ").casefold()
+        if answer == "y":
+            filename = "./password_generator/saved_passwords.json"
+            if os.path.exists(filename):
+                with open(filename, "r") as f:
+                    saved_passwords = json.load(f)
+            else:
+                saved_passwords = {}
 
-        application_name = input("Give application name: ")
+            application_name = input("Give application name: ")
 
-        if application_name in saved_passwords:
-            overwrite = input("Password to this application already exists. Overwrite? Y/N: ")
+            manage_password(application_name, filename, saved_passwords)
+        elif answer == "n":
+            break
         else:
             pass
-        while True:
-            if overwrite == "y" or overwrite == "Y":
-                [num_of_letters_lowercase, num_of_letters_uppercase, num_of_digits,
-                 num_of_special_characters] = load_preferences(default_num="3")
 
-                password = set_password(num_of_letters_lowercase, num_of_letters_uppercase,
-                                        num_of_digits, num_of_special_characters)
-                save_password(application_name, password, saved_passwords, filename)
-                break
-            elif overwrite == "n" or overwrite == "N":
-                break
-            else:
-                overwrite = input("Password to this application already exists. Overwrite? Y/N: ")
 
-        while True:
-            new_password = input("Do you need a new password? Y/N: ")
-            if new_password in accepted_answers:
-                break
+def manage_password(application_name, filename, saved_passwords):
+    overwrite = 'y'
+    if application_name in saved_passwords:
+        password = get_password(application_name, saved_passwords)
+        overwrite = input(f"Password to this application already exists: \n"
+                          f"{password}\n"
+                          f"Overwrite? Y/N: ").casefold()
+    else:
+        pass
+    while True:
+        if overwrite == "y":
+            [num_of_letters_lowercase, num_of_letters_uppercase, num_of_digits,
+             num_of_special_characters] = load_preferences(default_num="3")
+
+            password = set_password(num_of_letters_lowercase, num_of_letters_uppercase,
+                                    num_of_digits, num_of_special_characters)
+            save_password(application_name, password, saved_passwords, filename)
+            break
+        elif overwrite == "n":
+            break
+        else:
+            overwrite = input("Password to this application already exists. Overwrite? Y/N: ")
 
 
 def load_preferences(default_num):
@@ -82,7 +89,11 @@ def set_password(num_of_letters_lowercase, num_of_letters_uppercase, num_of_digi
     random.shuffle(password)
     password = ''.join(password)
 
-    print(f"Your password: {password}\n")
+    return password
+
+
+def get_password(application_name, saved_passwords):
+    password = saved_passwords[application_name]
     return password
 
 
@@ -90,6 +101,8 @@ def save_password(application_name, password, saved_passwords, filename):
     saved_passwords[application_name] = password
     with open(filename, "w") as f:
         json.dump(saved_passwords, f)
+    print(f"Your password: {password} to {application_name} was saved in saved_password.json file"
+          f"\n")
 
 
 if __name__ == '__main__':
